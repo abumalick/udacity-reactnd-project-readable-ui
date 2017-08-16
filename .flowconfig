@@ -1,0 +1,14 @@
+[ignore]
+
+[include]
+
+[libs]
+
+[lints]
+
+[options]
+{
+    "files.associations": {
+        "*.js": "flow"
+    }
+}
