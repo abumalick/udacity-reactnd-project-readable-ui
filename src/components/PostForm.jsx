@@ -1,87 +1,126 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
+import {connect} from 'react-redux'
 
-import {editComment, newComment} from '../actions/comments'
+import {editPost, getPost, newPost} from '../actions/posts'
+import {getCategories} from '../actions/categories'
 
 import generateUUID from '../helpers/generateUUID'
 
-class CommentForm extends Component {
+class PostForm extends Component {
   constructor(props, context) {
     super(props, context)
-    const {comment} = props
-    if (comment.id) {
+    const {post} = props
+    if (post.id) {
       this.state = {
-        body: comment.body,
+        author: post.author,
+        body: post.body,
+        category: post.category,
+        title: post.title,
       }
     } else {
       this.state = {
         author: '',
         body: '',
+        category: '',
+        title: '',
       }
     }
   }
+  componentDidMount() {
+    const {dispatch, postId} = this.props
+    if (postId) dispatch(getPost(postId))
+    dispatch(getCategories())
+  }
+  componentWillReceiveProps(newProps) {
+    if (newProps.post.id !== this.props.post.id) {
+      const {post} = newProps
+      this.setState({
+        author: post.author,
+        body: post.body,
+        category: post.category,
+        title: post.title,
+      })
+    }
+    if (newProps.categories.length !== this.props.categories.length) {
+      const {post} = newProps
+      this.setState({
+        category: post.category,
+      })
+    }
+  }
 
-  // id: Any unique ID. As with posts, UUID is probably the best here.
-  // timestamp: timestamp. Get this however you want.
-  // body: String
-  // author: String
-  // parentId: Should match a post id in the database.
   handleChange = event => {
     const {name, value} = event.target
     this.setState({[name]: value})
   }
   submit = () => {
-    const {comment, dispatch, postId, toggleModal} = this.props
-    const {body, author} = this.state
+    const {dispatch, post} = this.props
+    const {router: {history}} = this.context
+    const {author, body, category, title} = this.state
     const timestamp = Date.now()
+    const id = post.id || generateUUID()
     const callback = success => {
       if (success) {
-        toggleModal()
+        history.push(`/${category}/${id}`)
       } else {
         this.setState({
           error: 'There was a problem contacting, API, please retry',
         })
       }
     }
-    if (comment.id) {
+    if (post.id) {
       dispatch(
-        editComment({
-          id: comment.id,
+        editPost({
+          id,
+          author,
           body,
+          category,
+          title,
           timestamp,
           callback,
-          parentId: comment.parentId,
         }),
       )
     } else {
-      const id = generateUUID()
       dispatch(
-        newComment({id, body, author, parentId: postId, timestamp, callback}),
+        newPost({id, author, body, category, title, timestamp, callback}),
       )
     }
   }
   render() {
-    const {comment, toggleModal} = this.props
-    const {body, author, error} = this.state
+    const {categories, post} = this.props
+    const {author, body, category, error, title} = this.state
+    const {router: {history}} = this.context
     return (
       <div className="fixed top-0 bottom-0 left-0 right-0 bg-black-70 z-999">
         <div className="pa3 w6 mw-100 absolute center-absolute bg-white tc">
           <h1 className="mt0 f3 tc">
-            {comment.id ? 'Edit a comment' : 'Write a new comment'}
+            {post.id ? 'Edit a post' : 'Write a new post'}
           </h1>
-          {!comment.id &&
-            <div className="mb2 flex justify-center items-baseline">
-              <label className="w3 dib" htmlFor="author">
-                Author:
-              </label>
-              <input
-                className="w5 dib"
-                onChange={this.handleChange}
-                name="author"
-                type="text"
-                value={author}
-              />
-            </div>}
+          <div className="mb2 flex justify-center items-baseline">
+            <label className="w3 dib" htmlFor="author">
+              Author:
+            </label>
+            <input
+              className="w5 dib"
+              onChange={this.handleChange}
+              name="author"
+              type="text"
+              value={author}
+            />
+          </div>
+          <div className="mb2 flex justify-center items-baseline">
+            <label className="w3 dib" htmlFor="title">
+              Title:
+            </label>
+            <input
+              className="w5 dib"
+              onChange={this.handleChange}
+              name="title"
+              type="text"
+              value={title}
+            />
+          </div>
           <div className="mb2 flex justify-center">
             <label className="w3 dib" htmlFor="body">
               Body:
@@ -94,29 +133,58 @@ class CommentForm extends Component {
               value={body}
             />
           </div>
+          <div className="mb2 flex justify-center">
+            <label className="w3 dib" htmlFor="category">
+              Category:
+            </label>
+            <select
+              className="w5 dib"
+              onChange={this.handleChange}
+              name="category"
+              type="text"
+              value={category}
+            >
+              <option value="" disabled>
+                Choose a category
+              </option>
+              {categories.data.map(({name, path}) => (
+                <option key={path} value={path}>
+                  {name}
+                </option>
+              ))}
+            </select>
+          </div>
           <div className="tc">
             <button className="mh1" onClick={this.submit}>
               Submit
             </button>
-            <button className="mh1" onClick={toggleModal}>
-              Cancel
+            <button
+              className="mh1"
+              onClick={() => {
+                history.goBack()
+              }}
+            >
+              Back
             </button>
           </div>
-          {error &&
-            <p className="mt2 red">
-              {error}
-            </p>}
+          {error && <p className="mt2 red">{error}</p>}
         </div>
       </div>
     )
   }
 }
 
-CommentForm.propTypes = {
-  comment: PropTypes.object.isRequired,
+PostForm.propTypes = {
+  categories: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
-  postId: PropTypes.string.isRequired,
-  toggleModal: PropTypes.func.isRequired,
+  post: PropTypes.object.isRequired,
+  postId: PropTypes.string, // eslint-disable-line
+}
+PostForm.contextTypes = {
+  router: PropTypes.object.isRequired,
 }
 
-export default CommentForm
+export default connect(({categories, posts}, {postId}) => ({
+  categories,
+  post: posts.data[postId] || {},
+}))(PostForm)

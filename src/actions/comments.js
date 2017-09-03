@@ -21,9 +21,9 @@ export const newComment = ({
   ...data
 }: {
   id: string,
+  author: string,
   body: string,
   timestamp: number,
-  author: string,
   parentId: string,
   callback: Function,
 }) => ({
@@ -41,6 +41,7 @@ export const newComment = ({
 })
 export const editComment = ({
   id,
+  author,
   body,
   timestamp,
   callback,
@@ -63,7 +64,7 @@ export const editComment = ({
     headers: {
       'Content-Type': 'application/json',
     },
-    data: {body, timestamp},
+    data: {author, body, timestamp},
   },
   callback,
   payload: {id, parentId},
@@ -84,6 +85,23 @@ export const deleteComment = ({
   config: {
     url: `/comments/${id}`,
     method: 'DELETE',
+  },
+  payload: {id, parentId},
+})
+
+export const voteComment = ({id, option, parentId}) => ({
+  types: [
+    'VOTE_COMMENT_REQUEST',
+    'VOTE_COMMENT_SUCCESS',
+    'VOTE_COMMENT_FAILURE',
+  ],
+  config: {
+    url: `/comments/${id}`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data: {option},
   },
   payload: {id, parentId},
 })

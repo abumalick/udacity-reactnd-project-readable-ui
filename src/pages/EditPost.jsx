@@ -16,7 +16,7 @@ class EditPost extends Component {
 }
 
 EditPost.propTypes = {
-  match: PropTypes.object, // eslint ignore-line
+  match: PropTypes.object, // eslint-disable-line
 }
 
 export default EditPost

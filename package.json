@@ -2,6 +2,7 @@
   "name": "reactnd-project-readable-ui",
   "version": "0.1.0",
   "private": true,
+  "license": "unlicense",
   "dependencies": {
     "axios": "^0.16.2",
     "prop-types": "^15.5.10",

@@ -9,15 +9,13 @@ class CommentForm extends Component {
   constructor(props, context) {
     super(props, context)
     const {comment} = props
-    if (comment.id) {
-      this.state = {
-        body: comment.body,
-      }
-    } else {
-      this.state = {
-        author: '',
-        body: '',
-      }
+    this.state = {
+      author: comment.author || '',
+      body: comment.body || '',
+    }
+    this.state = {
+      author: '',
+      body: '',
     }
   }
 
@@ -47,6 +45,7 @@ class CommentForm extends Component {
       dispatch(
         editComment({
           id: comment.id,
+          author,
           body,
           timestamp,
           callback,
@@ -56,7 +55,7 @@ class CommentForm extends Component {
     } else {
       const id = generateUUID()
       dispatch(
-        newComment({id, body, author, parentId: postId, timestamp, callback}),
+        newComment({id, author, body, parentId: postId, timestamp, callback}),
       )
     }
   }
@@ -69,19 +68,18 @@ class CommentForm extends Component {
           <h1 className="mt0 f3 tc">
             {comment.id ? 'Edit a comment' : 'Write a new comment'}
           </h1>
-          {!comment.id &&
-            <div className="mb2 flex justify-center items-baseline">
-              <label className="w3 dib" htmlFor="author">
-                Author:
-              </label>
-              <input
-                className="w5 dib"
-                onChange={this.handleChange}
-                name="author"
-                type="text"
-                value={author}
-              />
-            </div>}
+          <div className="mb2 flex justify-center items-baseline">
+            <label className="w3 dib" htmlFor="author">
+              Author:
+            </label>
+            <input
+              className="w5 dib"
+              onChange={this.handleChange}
+              name="author"
+              type="text"
+              value={author}
+            />
+          </div>
           <div className="mb2 flex justify-center">
             <label className="w3 dib" htmlFor="body">
               Body:
@@ -102,10 +100,7 @@ class CommentForm extends Component {
               Cancel
             </button>
           </div>
-          {error &&
-            <p className="mt2 red">
-              {error}
-            </p>}
+          {error && <p className="mt2 red">{error}</p>}
         </div>
       </div>
     )

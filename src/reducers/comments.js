@@ -39,6 +39,17 @@ const commentsById = (state = {data: [], status: 'not fetched'}, action) => {
         data: [...state.data.slice(0, index), ...state.data.slice(index + 1)],
       }
     }
+    case 'VOTE_COMMENT_SUCCESS': {
+      const index = state.data.findIndex(({id}) => id === action.id)
+      return {
+        ...state,
+        data: [
+          ...state.data.slice(0, index),
+          action.response.data,
+          ...state.data.slice(index + 1),
+        ],
+      }
+    }
     default:
       return state
   }
@@ -52,6 +63,7 @@ const comments = (state = {}, action) => {
     case 'NEW_COMMENT_SUCCESS':
     case 'EDIT_COMMENT_SUCCESS':
     case 'DELETE_COMMENT_SUCCESS':
+    case 'VOTE_COMMENT_SUCCESS':
       return {
         ...state,
         [action.parentId]: commentsById(state[action.parentId], action),

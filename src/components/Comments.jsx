@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {deleteComment, getComments} from '../actions/comments'
+import VoteScore from './VoteScore'
+import {deleteComment, getComments, voteComment} from '../actions/comments'
 
 import CommentForm from './CommentForm'
 
@@ -39,80 +40,106 @@ class Comments extends Component {
     return (
       <div>
         {comments.status === 'fetched' &&
-          (commentsData.length
-            ? <div>
-                <div className="ph2 flex justify-between items-baseline bg-light-gray">
-                  <h3 className="mv2">Comments</h3>
-                  <div>
-                    order by:
-                    {Object.entries({
-                      timestamp: 'date',
-                      voteScore: 'score',
-                    }).map(([field, label]) =>
-                      <button
-                        key={field}
-                        className={`ml1 pointer ${orderBy === field
-                          ? 'b--orange'
-                          : ''}`}
-                        onClick={() => this.setState({orderBy: field})}
-                      >
-                        {label}
-                      </button>,
-                    )}
+          (commentsData.length ? (
+            <div>
+              <div className="ph2 flex justify-between items-baseline bg-light-gray">
+                <h3 className="mv2">{`${commentsData.length} Comment${commentsData.length >
+                1
+                  ? 's'
+                  : ''}`}</h3>
+                <div>
+                  order by:
+                  {Object.entries({
+                    timestamp: 'date',
+                    voteScore: 'score',
+                  }).map(([field, label]) => (
                     <button
-                      className="bn bg-transparent ml1 f6 pointer underline"
-                      onClick={() =>
-                        this.setState(state => ({orderAsc: !state.orderAsc}))}
+                      key={field}
+                      className={`ml1 pointer ${orderBy === field
+                        ? 'b--orange'
+                        : ''}`}
+                      onClick={() => this.setState({orderBy: field})}
                     >
-                      {orderAsc ? 'desc' : 'asc'}
+                      {label}
                     </button>
-                  </div>
+                  ))}
+                  <button
+                    className="bn bg-transparent ml1 f6 pointer underline"
+                    onClick={() =>
+                      this.setState(state => ({orderAsc: !state.orderAsc}))}
+                  >
+                    {orderAsc ? 'desc' : 'asc'}
+                  </button>
                 </div>
-                <table>
-                  <tbody>
-                    {commentsData.map(comment =>
-                      <tr key={comment.id}>
-                        <td className="ph3 bg-light-gray gray">
-                          {comment.voteScore}
-                        </td>
-                        <td>
-                          <span className="near-black">
-                            {comment.body} -
-                          </span>{' '}
-                          <span className="orange">{comment.author}</span>{' '}
-                          <span className="silver">
-                            {new Date(comment.timestamp).toDateString()}
-                          </span>
-                          <a
-                            className="ml2 pointer"
-                            onClick={() => {
-                              this.setState(
-                                {selectedComment: comment},
-                                this.toggleModal(),
-                              )
-                            }}
-                            role="button"
-                            tabIndex="0"
-                          >
-                            <img alt="edit" className="h1" src={edit} />
-                          </a>
-                          <a
-                            className="ml2 pointer"
-                            onClick={() => {
-                              this.delete(comment.id, comment.parentId)
-                            }}
-                            role="button"
-                            tabIndex="0"
-                          >
-                            <img alt="delete" className="h1" src={xMark} />
-                          </a>
-                        </td>
-                      </tr>,
-                    )}
-                  </tbody>
-                </table>
               </div>
-            : <p>There is currently not comments in this category.</p>)}
+              <table>
+                <tbody>
+                  {commentsData.map(comment => (
+                    <tr key={comment.id}>
+                      <td className="ph3 bg-light-gray gray">
+                        <VoteScore
+                          className="ph3"
+                          onIncrement={() => {
+                            dispatch(
+                              voteComment({
+                                id: comment.id,
+                                option: 'upVote',
+                                parentId: postId,
+                              }),
+                            )
+                          }}
+                          onDecrement={() => {
+                            dispatch(
+                              voteComment({
+                                id: comment.id,
+                                option: 'downVote',
+                                parentId: postId,
+                              }),
+                            )
+                          }}
+                          voteScore={comment.voteScore}
+                        />
+                      </td>
+                      <td>
+                        <span className="near-black">
+                          {comment.body} -
+                        </span>{' '}
+                        <span className="orange">{comment.author}</span>{' '}
+                        <span className="silver">
+                          {new Date(comment.timestamp).toDateString()}
+                        </span>
+                        <a
+                          className="ml2 pointer"
+                          onClick={() => {
+                            this.setState(
+                              {selectedComment: comment},
+                              this.toggleModal(),
+                            )
+                          }}
+                          role="button"
+                          tabIndex="0"
+                        >
+                          <img alt="edit" className="h1" src={edit} />
+                        </a>
+                        <a
+                          className="ml2 pointer"
+                          onClick={() => {
+                            this.delete(comment.id, comment.parentId)
+                          }}
+                          role="button"
+                          tabIndex="0"
+                        >
+                          <img alt="delete" className="h1" src={xMark} />
+                        </a>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <p>There is currently not comments in this category.</p>
+          ))}
         <div className="pv1 bg-light-gray tc">
           <button
             className="pointer"
@@ -123,13 +150,14 @@ class Comments extends Component {
             add a comment
           </button>
         </div>
-        {modal &&
+        {modal && (
           <CommentForm
             comment={selectedComment || {}}
             dispatch={dispatch}
             postId={postId}
             toggleModal={this.toggleModal}
-          />}
+          />
+        )}
       </div>
     )
   }

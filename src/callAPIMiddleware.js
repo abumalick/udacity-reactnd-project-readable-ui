@@ -45,7 +45,7 @@ const callAPIMiddleware = ({dispatch, getState}) => next => action => {
     url,
     headers: {Authorization: API_KEY},
   }
-  console.log('callback', callback)
+
   // All right, we start
   dispatch({
     type: requestType,

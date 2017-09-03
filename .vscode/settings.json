@@ -5,5 +5,6 @@
   "prettier.jsxBracketSameLine": false,
   "prettier.trailingComma": "all",
   "prettier.printWidth": 80,
-  "prettier.semi": false
+  "prettier.semi": false,
+  "javascript.validate.enable": false
 }
