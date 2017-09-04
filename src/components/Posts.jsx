@@ -9,14 +9,15 @@ import {
   getPostsFromCategory,
   votePost,
 } from '../actions/posts'
+import {initializeOrder, orderBy, switchOrder} from '../actions/order'
 import {getComments} from '../actions/comments'
 import edit from '../icons/edit.svg'
 import xMark from '../icons/x-mark.svg'
 
 class Posts extends Component {
-  state = {
-    orderAsc: false,
-    orderBy: 'voteScore',
+  componentWillMount() {
+    const {dispatch} = this.props
+    dispatch(initializeOrder({id: 'posts'}))
   }
   componentDidMount() {
     const {category, dispatch} = this.props
@@ -37,37 +38,12 @@ class Posts extends Component {
   delete = id => {
     this.props.dispatch(deletePost(id))
   }
-  sortBy = field => {
-    this.setState(
-      state =>
-        state.orderBy === field
-          ? {orderAsc: !state.orderAsc}
-          : {orderAsc: true, orderBy: field},
-    )
-  }
   render() {
-    const {comments, dispatch, posts} = this.props
-    const {orderAsc, orderBy} = this.state
-    const postData = Object.values(posts.data)
-      .filter(({deleted}) => !deleted)
-      // add commentsCount to the array
-      .map(post => ({
-        ...post,
-        commentsCount:
-          comments[post.id] &&
-          comments[post.id].data &&
-          comments[post.id].data.length,
-      }))
-      .sort(
-        (post1, post2) =>
-          orderAsc
-            ? post1[orderBy] > post2[orderBy]
-            : post2[orderBy] > post1[orderBy],
-      )
+    const {dispatch, order, posts} = this.props
     return (
       <div>
         {posts.status === 'fetched' &&
-          (postData.length ? (
+          (posts.data.length ? (
             <table>
               <thead>
                 <tr>
@@ -81,12 +57,18 @@ class Posts extends Component {
                     <th
                       key={field}
                       className="pointer f6"
-                      onClick={() => this.sortBy(field)}
+                      onClick={() => {
+                        if (order.by === field) {
+                          dispatch(switchOrder({id: 'posts', field}))
+                        } else {
+                          dispatch(orderBy({id: 'posts', field}))
+                        }
+                      }}
                     >
                       {label}
-                      {orderBy === field && (
+                      {order.by === field && (
                         <div className="dib ml2 rotate-90 gray">
-                          {orderAsc ? '>' : '<'}
+                          {order.asc ? '<' : '>'}
                         </div>
                       )}
                     </th>
@@ -94,7 +76,7 @@ class Posts extends Component {
                 </tr>
               </thead>
               <tbody>
-                {postData.map(
+                {posts.data.map(
                   ({
                     id,
                     author,
@@ -159,21 +141,39 @@ class Posts extends Component {
 
 Posts.propTypes = {
   category: PropTypes.string.isRequired,
-  comments: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  order: PropTypes.object.isRequired,
   posts: PropTypes.object.isRequired,
 }
 
-export default connect(({comments, posts}, {category}) => ({
-  posts: category
-    ? {
-        data: Object.values(posts.data).reduce(
-          (obj, post) =>
-            post.category === category ? {...obj, [post.id]: post} : obj,
-          {},
+export default connect(({comments, order, posts}, ownProps) => {
+  const orderPosts = order.posts || {}
+  return {
+    comments,
+    order: orderPosts,
+    posts: {
+      data: Object.values(posts.data)
+        // remove deleted keep only selected category (if selected)
+        .filter(
+          ({category, deleted}) =>
+            !deleted && (!ownProps.category || category === ownProps.category),
+        )
+        // add commentsCount to the array
+        .map(post => ({
+          ...post,
+          commentsCount:
+            comments[post.id] &&
+            comments[post.id].data &&
+            comments[post.id].data.length,
+        }))
+        // order
+        .sort(
+          (post1, post2) =>
+            orderPosts.asc
+              ? post1[orderPosts.by] > post2[orderPosts.by]
+              : post2[orderPosts.by] > post1[orderPosts.by],
         ),
-        status: posts.status,
-      }
-    : posts,
-  comments,
-}))(Posts)
+      status: posts.status,
+    },
+  }
+})(Posts)

@@ -3,6 +3,7 @@ import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import VoteScore from './VoteScore'
 import {deleteComment, getComments, voteComment} from '../actions/comments'
+import {initializeOrder, orderBy, switchOrder} from '../actions/order'
 
 import CommentForm from './CommentForm'
 
@@ -12,9 +13,11 @@ import xMark from '../icons/x-mark.svg'
 class Comments extends Component {
   state = {
     modal: false,
-    orderAsc: false,
-    orderBy: 'voteScore',
     selectedComment: undefined,
+  }
+  componentWillMount() {
+    const {dispatch} = this.props
+    dispatch(initializeOrder({id: 'comments'}))
   }
   componentDidMount() {
     const {dispatch, postId} = this.props
@@ -27,54 +30,47 @@ class Comments extends Component {
     this.props.dispatch(deleteComment({id, parentId}))
   }
   render() {
-    const {comments, dispatch, postId} = this.props
-    const {modal, orderAsc, orderBy, selectedComment} = this.state
-    const commentsData = comments.data
-      .slice() // copy the array because sort is not pure
-      .sort(
-        (comment1, comment2) =>
-          orderAsc
-            ? comment2[orderBy] < comment1[orderBy]
-            : comment2[orderBy] > comment1[orderBy],
-      )
+    const {comments, dispatch, order, postId} = this.props
+    const {modal, selectedComment} = this.state
     return (
       <div>
         {comments.status === 'fetched' &&
-          (commentsData.length ? (
+          (comments.data.length ? (
             <div>
               <div className="ph2 flex justify-between items-baseline bg-light-gray">
-                <h3 className="mv2">{`${commentsData.length} Comment${commentsData.length >
-                1
-                  ? 's'
-                  : ''}`}</h3>
-                <div>
+                <h3 className="mv2 mr2">{`${comments.data
+                  .length} Comment${comments.data.length > 1 ? 's' : ''}`}</h3>
+                <div className="flex">
                   order by:
                   {Object.entries({
+                    body: 'content',
                     timestamp: 'date',
                     voteScore: 'score',
                   }).map(([field, label]) => (
                     <button
                       key={field}
-                      className={`ml1 pointer ${orderBy === field
+                      className={`flex ml1 pointer ${order.by === field
                         ? 'b--orange'
                         : ''}`}
-                      onClick={() => this.setState({orderBy: field})}
+                      onClick={() => {
+                        if (order.by === field) {
+                          dispatch(switchOrder({id: 'comments', field}))
+                        } else {
+                          dispatch(orderBy({id: 'comments', field}))
+                        }
+                      }}
                     >
                       {label}
+                      <div className="rotate-90">
+                        {order.by === field && (order.asc ? '<' : '>')}
+                      </div>
                     </button>
                   ))}
-                  <button
-                    className="bn bg-transparent ml1 f6 pointer underline"
-                    onClick={() =>
-                      this.setState(state => ({orderAsc: !state.orderAsc}))}
-                  >
-                    {orderAsc ? 'desc' : 'asc'}
-                  </button>
                 </div>
               </div>
               <table>
                 <tbody>
-                  {commentsData.map(comment => (
+                  {comments.data.map(comment => (
                     <tr key={comment.id}>
                       <td className="ph3 bg-light-gray gray">
                         <VoteScore
@@ -166,9 +162,27 @@ class Comments extends Component {
 Comments.propTypes = {
   comments: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  order: PropTypes.object.isRequired,
   postId: PropTypes.string.isRequired,
 }
 
-export default connect(({comments}, {postId}) => ({
-  comments: comments[postId] || {data: [], status: 'not fetched'},
-}))(Comments)
+export default connect(({comments, order}, {postId}) => {
+  const commentsOrder = order.comments || {}
+  const commentsData =
+    comments[postId] &&
+    comments[postId].data
+      .slice() // copy the array because sort is not pure
+      .sort(
+        (comment1, comment2) =>
+          commentsOrder.asc
+            ? comment2[commentsOrder.by] < comment1[commentsOrder.by]
+            : comment2[commentsOrder.by] > comment1[commentsOrder.by],
+      )
+  return {
+    comments: {
+      data: commentsData || [],
+      status: (comments[postId] && comments[postId].status) || 'not fetched',
+    },
+    order: order.comments || {},
+  }
+})(Comments)
