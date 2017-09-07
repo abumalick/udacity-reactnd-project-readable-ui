@@ -1,0 +1,12 @@
+{
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "xabikos.javascriptsnippets",
+    "xabikos.reactsnippets",
+    "dbaeumer.vscode-eslint",
+    "streetsidesoftware.code-spell-checker",
+    "formulahendry.auto-close-tag",
+    "qezhu.gitlink",
+    "leizongmin.node-module-intellisense"
+  ]
+}
