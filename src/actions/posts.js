@@ -66,7 +66,7 @@ export const newPost = ({
     data,
   },
   callback,
-  payload: {parentId: data.parentId},
+  payload: {id: data.id},
 })
 export const editPost = ({
   callback,

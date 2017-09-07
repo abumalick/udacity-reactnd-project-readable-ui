@@ -1,44 +1,36 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
+import {connect} from 'react-redux'
 
-import {editComment, newComment} from '../actions/comments'
-
+import {editComment, newComment, toggleCommentForm} from '../actions/comments'
+import {changeField, destroyForm, initializeForm} from '../actions/form'
 import generateUUID from '../helpers/generateUUID'
 
 class CommentForm extends Component {
-  constructor(props, context) {
-    super(props, context)
-    const {comment} = props
-    this.state = {
-      author: comment.author || '',
-      body: comment.body || '',
-    }
-    this.state = {
-      author: '',
-      body: '',
-    }
+  componentWillMount() {
+    const {comment, dispatch} = this.props
+    dispatch(
+      initializeForm({
+        author: comment.author || '',
+        body: comment.body || '',
+      }),
+    )
   }
-
-  // id: Any unique ID. As with posts, UUID is probably the best here.
-  // timestamp: timestamp. Get this however you want.
-  // body: String
-  // author: String
-  // parentId: Should match a post id in the database.
+  componentWillUnmount() {
+    const {dispatch} = this.props
+    dispatch(destroyForm())
+  }
   handleChange = event => {
     const {name, value} = event.target
-    this.setState({[name]: value})
+    const {dispatch} = this.props
+    dispatch(changeField({key: name, value}))
   }
   submit = () => {
-    const {comment, dispatch, postId, toggleModal} = this.props
-    const {body, author} = this.state
+    const {author, body, comment, dispatch, postId} = this.props
     const timestamp = Date.now()
     const callback = success => {
       if (success) {
-        toggleModal()
-      } else {
-        this.setState({
-          error: 'There was a problem contacting, API, please retry',
-        })
+        dispatch(toggleCommentForm())
       }
     }
     if (comment.id) {
@@ -60,8 +52,7 @@ class CommentForm extends Component {
     }
   }
   render() {
-    const {comment, toggleModal} = this.props
-    const {body, author, error} = this.state
+    const {author = '', body = '', comment, dispatch, error} = this.props
     return (
       <div className="fixed top-0 bottom-0 left-0 right-0 bg-black-70 z-999">
         <div className="pa3 w6 mw-100 absolute center-absolute bg-white tc">
@@ -96,7 +87,10 @@ class CommentForm extends Component {
             <button className="mh1" onClick={this.submit}>
               Submit
             </button>
-            <button className="mh1" onClick={toggleModal}>
+            <button
+              className="mh1"
+              onClick={() => dispatch(toggleCommentForm())}
+            >
               Cancel
             </button>
           </div>
@@ -108,10 +102,11 @@ class CommentForm extends Component {
 }
 
 CommentForm.propTypes = {
+  author: PropTypes.string, // eslint-disable-line
+  body: PropTypes.string, // eslint-disable-line
   comment: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
   postId: PropTypes.string.isRequired,
-  toggleModal: PropTypes.func.isRequired,
 }
 
-export default CommentForm
+export default connect(({form}) => ({...form}))(CommentForm)

@@ -2,7 +2,12 @@ import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
 import VoteScore from './VoteScore'
-import {deleteComment, getComments, voteComment} from '../actions/comments'
+import {
+  deleteComment,
+  getComments,
+  toggleCommentForm,
+  voteComment,
+} from '../actions/comments'
 import {initializeOrder, orderBy, switchOrder} from '../actions/order'
 
 import CommentForm from './CommentForm'
@@ -11,10 +16,6 @@ import edit from '../icons/edit.svg'
 import xMark from '../icons/x-mark.svg'
 
 class Comments extends Component {
-  state = {
-    modal: false,
-    selectedComment: undefined,
-  }
   componentWillMount() {
     const {dispatch} = this.props
     dispatch(initializeOrder({id: 'comments'}))
@@ -23,15 +24,18 @@ class Comments extends Component {
     const {dispatch, postId} = this.props
     dispatch(getComments(postId))
   }
-  toggleModal = () => {
-    this.setState(state => ({modal: !state.modal}))
-  }
   delete = (id, parentId) => {
     this.props.dispatch(deleteComment({id, parentId}))
   }
   render() {
-    const {comments, dispatch, order, postId} = this.props
-    const {modal, selectedComment} = this.state
+    const {
+      comments,
+      dispatch,
+      formVisible,
+      order,
+      postId,
+      selectedComment,
+    } = this.props
     return (
       <div>
         {comments.status === 'fetched' &&
@@ -107,10 +111,7 @@ class Comments extends Component {
                         <a
                           className="ml2 pointer"
                           onClick={() => {
-                            this.setState(
-                              {selectedComment: comment},
-                              this.toggleModal(),
-                            )
+                            dispatch(toggleCommentForm({id: comment.id}))
                           }}
                           role="button"
                           tabIndex="0"
@@ -140,18 +141,22 @@ class Comments extends Component {
           <button
             className="pointer"
             onClick={() => {
-              this.setState({selectedComment: undefined}, this.toggleModal())
+              dispatch(toggleCommentForm())
             }}
           >
             add a comment
           </button>
         </div>
-        {modal && (
+        {formVisible && (
           <CommentForm
-            comment={selectedComment || {}}
-            dispatch={dispatch}
+            comment={
+              selectedComment ? (
+                comments.data.find(({id}) => id === selectedComment)
+              ) : (
+                {}
+              )
+            }
             postId={postId}
-            toggleModal={this.toggleModal}
           />
         )}
       </div>
@@ -162,8 +167,10 @@ class Comments extends Component {
 Comments.propTypes = {
   comments: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  formVisible: PropTypes.bool.isRequired,
   order: PropTypes.object.isRequired,
   postId: PropTypes.string.isRequired,
+  selectedComment: PropTypes.string, // eslint-disable-line
 }
 
 export default connect(({comments, order}, {postId}) => {
@@ -183,6 +190,8 @@ export default connect(({comments, order}, {postId}) => {
       data: commentsData || [],
       status: (comments[postId] && comments[postId].status) || 'not fetched',
     },
-    order: order.comments || {},
+    formVisible: comments.formVisible,
+    order: commentsOrder,
+    selectedComment: comments.selectedComment,
   }
 })(Comments)

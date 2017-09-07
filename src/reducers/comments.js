@@ -55,18 +55,24 @@ const commentsById = (state = {data: [], status: 'not fetched'}, action) => {
   }
 }
 
-const comments = (state = {}, action) => {
+const comments = (state = {formVisible: false}, action) => {
   switch (action.type) {
+    case 'DELETE_COMMENT_SUCCESS':
+    case 'EDIT_COMMENT_SUCCESS':
     case 'GET_COMMENTS_REQUEST':
     case 'GET_COMMENTS_SUCCESS':
     case 'GET_COMMENTS_FAILURE':
     case 'NEW_COMMENT_SUCCESS':
-    case 'EDIT_COMMENT_SUCCESS':
-    case 'DELETE_COMMENT_SUCCESS':
     case 'VOTE_COMMENT_SUCCESS':
       return {
         ...state,
         [action.parentId]: commentsById(state[action.parentId], action),
+      }
+    case 'TOGGLE_COMMENT_FORM':
+      return {
+        ...state,
+        selectedComment: action.id,
+        formVisible: !state.formVisible,
       }
     default:
       return state

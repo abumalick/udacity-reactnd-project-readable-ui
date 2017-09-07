@@ -4,28 +4,24 @@ import {connect} from 'react-redux'
 
 import {editPost, getPost, newPost} from '../actions/posts'
 import {getCategories} from '../actions/categories'
+import {
+  changeField,
+  destroyForm,
+  saveError,
+  initializeForm,
+} from '../actions/form'
 
 import generateUUID from '../helpers/generateUUID'
 
 class PostForm extends Component {
   constructor(props, context) {
     super(props, context)
-    const {post} = props
-    if (post.id) {
-      this.state = {
-        author: post.author,
-        body: post.body,
-        category: post.category,
-        title: post.title,
-      }
-    } else {
-      this.state = {
-        author: '',
-        body: '',
-        category: '',
-        title: '',
-      }
-    }
+    this.initForm(props.post)
+  }
+
+  componentWillMount() {
+    const {post} = this.props
+    this.initForm(post)
   }
   componentDidMount() {
     const {dispatch, postId} = this.props
@@ -34,39 +30,51 @@ class PostForm extends Component {
   }
   componentWillReceiveProps(newProps) {
     if (newProps.post.id !== this.props.post.id) {
-      const {post} = newProps
-      this.setState({
-        author: post.author,
-        body: post.body,
-        category: post.category,
-        title: post.title,
-      })
-    }
-    if (newProps.categories.length !== this.props.categories.length) {
-      const {post} = newProps
-      this.setState({
-        category: post.category,
-      })
+      this.initForm(newProps.post)
     }
   }
-
+  componentWillUnmount() {
+    const {dispatch} = this.props
+    dispatch(destroyForm())
+  }
   handleChange = event => {
     const {name, value} = event.target
-    this.setState({[name]: value})
+    const {dispatch} = this.props
+    dispatch(changeField({key: name, value}))
+  }
+  initForm = post => {
+    const {dispatch} = this.props
+    dispatch(
+      initializeForm({
+        author: post.author || '',
+        body: post.body || '',
+        category: post.category || '',
+        title: post.title || '',
+      }),
+    )
   }
   submit = () => {
-    const {dispatch, post} = this.props
+    const {dispatch, form: {author, body, category, title}, post} = this.props
+    if (!author || !body || !category || !title) {
+      dispatch(
+        saveError({
+          error: 'All fields must be filled',
+        }),
+      )
+      return
+    }
     const {router: {history}} = this.context
-    const {author, body, category, title} = this.state
     const timestamp = Date.now()
     const id = post.id || generateUUID()
     const callback = success => {
       if (success) {
         history.push(`/${category}/${id}`)
       } else {
-        this.setState({
-          error: 'There was a problem contacting, API, please retry',
-        })
+        dispatch(
+          saveError({
+            error: 'There was a problem contacting, API, please retry',
+          }),
+        )
       }
     }
     if (post.id) {
@@ -88,8 +96,11 @@ class PostForm extends Component {
     }
   }
   render() {
-    const {categories, post} = this.props
-    const {author, body, category, error, title} = this.state
+    const {
+      categories,
+      form: {author = '', body = '', category, error, title = ''},
+      post,
+    } = this.props
     const {router: {history}} = this.context
     return (
       <div className="fixed top-0 bottom-0 left-0 right-0 bg-black-70 z-999">
@@ -139,6 +150,7 @@ class PostForm extends Component {
             </label>
             <select
               className="w5 dib"
+              defaultValue=""
               onChange={this.handleChange}
               name="category"
               type="text"
@@ -176,6 +188,7 @@ class PostForm extends Component {
 
 PostForm.propTypes = {
   categories: PropTypes.object.isRequired,
+  form: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
   post: PropTypes.object.isRequired,
   postId: PropTypes.string, // eslint-disable-line
@@ -184,7 +197,8 @@ PostForm.contextTypes = {
   router: PropTypes.object.isRequired,
 }
 
-export default connect(({categories, posts}, {postId}) => ({
+export default connect(({categories, form, posts}, {postId}) => ({
+  form,
   categories,
   post: posts.data[postId] || {},
 }))(PostForm)

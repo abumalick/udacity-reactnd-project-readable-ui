@@ -1,44 +1,24 @@
 // @flow
 
-export const getComments = (parentId: number) => ({
-  types: [
-    'GET_COMMENTS_REQUEST',
-    'GET_COMMENTS_SUCCESS',
-    'GET_COMMENTS_FAILURE',
-  ],
-  config: {
-    url: `/posts/${parentId}/comments`,
-  },
-  payload: {parentId},
-  shouldCallAPI: state =>
-    !state.comments[parentId] || state.comments[parentId].status === 'rejected',
-})
-
-export default getComments
-
-export const newComment = ({
-  callback,
-  ...data
+export const deleteComment = ({
+  id,
+  parentId,
 }: {
   id: string,
-  author: string,
-  body: string,
-  timestamp: number,
   parentId: string,
-  callback: Function,
 }) => ({
-  types: ['NEW_COMMENT_REQUEST', 'NEW_COMMENT_SUCCESS', 'NEW_COMMENT_FAILURE'],
+  types: [
+    'DELETE_COMMENT_REQUEST',
+    'DELETE_COMMENT_SUCCESS',
+    'DELETE_COMMENT_FAILURE',
+  ],
   config: {
-    url: `/comments`,
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-    },
-    data,
+    url: `/comments/${id}`,
+    method: 'DELETE',
   },
-  callback,
-  payload: {parentId: data.parentId},
+  payload: {id, parentId},
 })
+
 export const editComment = ({
   id,
   author,
@@ -70,23 +50,48 @@ export const editComment = ({
   payload: {id, parentId},
 })
 
-export const deleteComment = ({
-  id,
-  parentId,
-}: {
-  id: string,
-  parentId: string,
-}) => ({
+export const getComments = (parentId: number) => ({
   types: [
-    'DELETE_COMMENT_REQUEST',
-    'DELETE_COMMENT_SUCCESS',
-    'DELETE_COMMENT_FAILURE',
+    'GET_COMMENTS_REQUEST',
+    'GET_COMMENTS_SUCCESS',
+    'GET_COMMENTS_FAILURE',
   ],
   config: {
-    url: `/comments/${id}`,
-    method: 'DELETE',
+    url: `/posts/${parentId}/comments`,
   },
-  payload: {id, parentId},
+  payload: {parentId},
+  shouldCallAPI: state =>
+    !state.comments[parentId] || state.comments[parentId].status === 'rejected',
+})
+export default getComments
+
+export const newComment = ({
+  callback,
+  ...data
+}: {
+  id: string,
+  author: string,
+  body: string,
+  timestamp: number,
+  parentId: string,
+  callback: Function,
+}) => ({
+  types: ['NEW_COMMENT_REQUEST', 'NEW_COMMENT_SUCCESS', 'NEW_COMMENT_FAILURE'],
+  config: {
+    url: `/comments`,
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    data,
+  },
+  callback,
+  payload: {parentId: data.parentId},
+})
+
+export const toggleCommentForm = ({id} = {}) => ({
+  id,
+  type: 'TOGGLE_COMMENT_FORM',
 })
 
 export const voteComment = ({id, option, parentId}) => ({
