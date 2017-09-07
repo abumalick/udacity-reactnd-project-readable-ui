@@ -5,6 +5,7 @@ import {Provider} from 'react-redux'
 import {applyMiddleware, compose, createStore} from 'redux'
 import callApiMiddleware from './callAPIMiddleware'
 import reducers from './reducers'
+import {saveToken} from './actions/auth'
 
 import generateUUID from './helpers/generateUUID'
 
@@ -21,7 +22,7 @@ if (!token) {
   token = generateUUID()
   localStorage.token = token
 }
-store.dispatch({token, type: 'SAVE_TOKEN'})
+store.dispatch(saveToken({token}))
 
 const Store = ({children}) => <Provider store={store}>{children}</Provider>
 
