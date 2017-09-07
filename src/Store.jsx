@@ -2,15 +2,11 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import {Provider} from 'react-redux'
-import {applyMiddleware, combineReducers, compose, createStore} from 'redux'
+import {applyMiddleware, compose, createStore} from 'redux'
 import callApiMiddleware from './callAPIMiddleware'
+import reducers from './reducers'
 
-import categories from './reducers/categories'
-import comments from './reducers/comments'
-import order from './reducers/order'
-import posts from './reducers/posts'
-
-const reducers = combineReducers({categories, comments, order, posts})
+import generateUUID from './helpers/generateUUID'
 
 const composeEnhancers = window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ || compose
 
@@ -18,6 +14,14 @@ const store = createStore(
   reducers,
   composeEnhancers(applyMiddleware(callApiMiddleware)),
 )
+
+// Generate a unique token for accessing personal data on the server.
+let token = localStorage.token
+if (!token) {
+  token = generateUUID()
+  localStorage.token = token
+}
+store.dispatch({token, type: 'SAVE_TOKEN'})
 
 const Store = ({children}) => <Provider store={store}>{children}</Provider>
 

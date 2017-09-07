@@ -2,7 +2,6 @@
 import axios from 'axios'
 
 const API_URL = 'http://localhost:5001'
-const API_KEY = 'whatever-you-want'
 
 const callAPIMiddleware = ({dispatch, getState}) => next => action => {
   const {
@@ -40,10 +39,11 @@ const callAPIMiddleware = ({dispatch, getState}) => next => action => {
   // Prepare data
   const [requestType, successType, failureType] = types
   const url = `${API_URL}${config.url}`
+  const token = getState().auth.token
   const finalConfig = {
     ...config,
     url,
-    headers: {Authorization: API_KEY},
+    headers: {Authorization: token},
   }
 
   // All right, we start
