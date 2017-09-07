@@ -178,7 +178,7 @@ export default connect(({comments, order}, {postId}) => {
   const commentsData =
     comments[postId] &&
     comments[postId].data
-      .slice() // copy the array because sort is not pure
+      .filter(({parentDeleted}) => !parentDeleted)
       .sort(
         (comment1, comment2) =>
           commentsOrder.asc

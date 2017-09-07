@@ -50,6 +50,16 @@ const commentsById = (state = {data: [], status: 'not fetched'}, action) => {
         ],
       }
     }
+    case 'DELETE_POST_SUCCESS':
+      return {
+        ...state,
+        data: [
+          ...state.data.map(comment => ({
+            ...comment,
+            parentDeleted: true,
+          })),
+        ],
+      }
     default:
       return state
   }
@@ -67,6 +77,11 @@ const comments = (state = {formVisible: false}, action) => {
       return {
         ...state,
         [action.parentId]: commentsById(state[action.parentId], action),
+      }
+    case 'DELETE_POST_SUCCESS':
+      return {
+        ...state,
+        [action.id]: commentsById(state[action.id], action),
       }
     case 'TOGGLE_COMMENT_FORM':
       return {
