@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
+import Comments from './Comments'
 import VoteScore from './VoteScore'
 
 import {deletePost, getPost, votePost} from '../actions/posts'
@@ -63,9 +64,18 @@ class Post extends Component {
                 </span>
               </div>
             </div>
+            <Comments postId={id} />
           </div>
         ) : (
-          <p>There is no post here</p>
+          <div className="ph3">
+            <h1>Oops... There is nothing here</h1>
+            <p>
+              {
+                "The post you are trying to view don't exist in the database. Please return to the"
+              }{' '}
+              <Link to="/">Home Page</Link>
+            </p>
+          </div>
         )}
       </div>
     )
