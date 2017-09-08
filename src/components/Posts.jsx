@@ -44,87 +44,118 @@ class Posts extends Component {
       <div>
         {posts.status === 'fetched' &&
           (posts.data.length ? (
-            <table>
-              <thead>
-                <tr>
-                  {Object.entries({
-                    voteScore: '',
-                    title: 'Title',
-                    author: 'Author',
-                    timestamp: 'Date',
-                    commentsCount: 'Comments',
-                  }).map(([field, label]) => (
-                    <th
-                      key={field}
-                      className="pointer f6"
-                      onClick={() => {
-                        if (order.by === field) {
-                          dispatch(switchOrder({id: 'posts', field}))
-                        } else {
-                          dispatch(orderBy({id: 'posts', field}))
-                        }
-                      }}
-                    >
-                      {label}
-                      {order.by === field && (
-                        <div className="dib ml2 rotate-90 gray">
-                          {order.asc ? '<' : '>'}
-                        </div>
-                      )}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {posts.data.map(
-                  ({
-                    id,
-                    author,
-                    category,
-                    commentsCount,
-                    title,
-                    timestamp,
-                    voteScore,
-                  }) => (
-                    <tr key={id}>
-                      <td>
-                        <VoteScore
-                          className="ph3"
-                          onIncrement={() => {
-                            dispatch(votePost({id, option: 'upVote'}))
-                          }}
-                          onDecrement={() => {
-                            dispatch(votePost({id, option: 'downVote'}))
-                          }}
-                          voteScore={voteScore}
-                        />
-                      </td>
-                      <td>
-                        <Link to={`/${category}/${id}`}>{title}</Link>
-                      </td>
-                      <td>{author}</td>
-                      <td>{new Date(timestamp).toDateString()}</td>
-                      <td className="tc">{commentsCount}</td>
-                      <td>
-                        <Link className="ml2" to={`/edit/${id}`}>
-                          <img alt="edit" className="h1" src={edit} />
-                        </Link>
-                        <a
-                          className="ml2 pointer"
-                          onClick={() => {
-                            this.delete(id)
-                          }}
-                          role="button"
-                          tabIndex="0"
-                        >
-                          <img alt="delete" className="h1" src={xMark} />
-                        </a>
-                      </td>
-                    </tr>
-                  ),
-                )}
-              </tbody>
-            </table>
+            <div>
+              <div className="f7 flex items-center pa2 bg-light-gray">
+                <span className="f6">order by:</span>
+                {Object.entries({
+                  voteScore: 'Score',
+                  title: 'title',
+                  author: 'author',
+                  timestamp: 'date',
+                  commentsCount: 'comments count',
+                }).map(([field, label]) => (
+                  <button
+                    key={field}
+                    className={`flex ml1 pointer ${order.by === field
+                      ? 'b--orange'
+                      : ''}`}
+                    onClick={() => {
+                      if (order.by === field) {
+                        dispatch(switchOrder({id: 'posts', field}))
+                      } else {
+                        dispatch(orderBy({id: 'posts', field}))
+                      }
+                    }}
+                  >
+                    {label}
+                    <div className="rotate-90">
+                      {order.by === field && (order.asc ? '<' : '>')}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <table>
+                <thead>
+                  <tr>
+                    {Object.entries({
+                      voteScore: '',
+                      title: 'Title',
+                      author: 'Author',
+                      timestamp: 'Date',
+                      commentsCount: 'Comments',
+                    }).map(([field, label]) => (
+                      <th
+                        key={field}
+                        className="pointer f6"
+                        onClick={() => {
+                          if (order.by === field) {
+                            dispatch(switchOrder({id: 'posts', field}))
+                          } else {
+                            dispatch(orderBy({id: 'posts', field}))
+                          }
+                        }}
+                      >
+                        {label}
+                        {order.by === field && (
+                          <div className="dib ml2 rotate-90 gray">
+                            {order.asc ? '<' : '>'}
+                          </div>
+                        )}
+                      </th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {posts.data.map(
+                    ({
+                      id,
+                      author,
+                      category,
+                      commentsCount,
+                      title,
+                      timestamp,
+                      voteScore,
+                    }) => (
+                      <tr key={id}>
+                        <td>
+                          <VoteScore
+                            className="ph3"
+                            onIncrement={() => {
+                              dispatch(votePost({id, option: 'upVote'}))
+                            }}
+                            onDecrement={() => {
+                              dispatch(votePost({id, option: 'downVote'}))
+                            }}
+                            voteScore={voteScore}
+                          />
+                        </td>
+                        <td>
+                          <Link to={`/${category}/${id}`}>{title}</Link>
+                        </td>
+                        <td>{author}</td>
+                        <td>{new Date(timestamp).toDateString()}</td>
+                        <td className="tc">{commentsCount}</td>
+                        <td>
+                          <Link className="ml2" to={`/edit/${id}`}>
+                            <img alt="edit" className="h1" src={edit} />
+                          </Link>
+                          <a
+                            className="ml2 pointer"
+                            onClick={() => {
+                              this.delete(id)
+                            }}
+                            role="button"
+                            tabIndex="0"
+                          >
+                            <img alt="delete" className="h1" src={xMark} />
+                          </a>
+                        </td>
+                      </tr>
+                    ),
+                  )}
+                </tbody>
+              </table>
+            </div>
           ) : (
             <p>There is currently no posts in this category.</p>
           ))}
