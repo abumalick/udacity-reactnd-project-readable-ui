@@ -30,6 +30,7 @@ npm run start
 -   React
 -   Redux
 -   React router
+    [Ant Design for React](https://ant.design): an UI library
 -   [Tachyons](http://tachyons.io/): Create fast loading, highly readable, and 100% responsive interfaces with as little css as possible. 
 -   [axios](https://github.com/mzabriskie/axios) (Promise based HTTP client for the browser and node.js)
 
@@ -41,15 +42,33 @@ npm run start
 
 ### Note to reviewer
 
-I understand the recommendations that you gave in udacity course and that is used in official redux documentation about declaring variables for actions name. eg:
+I tried to use mapDispatchToProps as you recommended, then saw that it was adding a lot of noise in my files like:
 
 ```
-const SAVE_TOKEN = 'SAVE_TOKEN';
-```
+CommentForm.propTypes = {
+  author: PropTypes.string, // eslint-disable-line
+  body: PropTypes.string, // eslint-disable-line
+  comment: PropTypes.object.isRequired,
+  error: PropTypes.string, // eslint-disable-line
+  postId: PropTypes.string.isRequired,
 
-I prefer not tu use it because of all the extra typewriting. I use some tools to avoid typos:
-- I try to copy-paste all the time
-- I installed an English spell checker extension on my editor
-- I use redux extension in chrome and see very quickly the changes to the store with the diff view
+  changeField: PropTypes.func.isRequired,
+  destroyForm: PropTypes.func.isRequired,
+  initializeForm: PropTypes.func.isRequired,
+  toggleCommentForm: PropTypes.func.isRequired,
+  newComment: PropTypes.func.isRequired,
+  editComment: PropTypes.func.isRequired,
+}
+
+export default connect(({form}) => ({...form}), {
+  changeField,
+  destroyForm,
+  initializeForm,
+  toggleCommentForm,
+  newComment,
+  editComment,
+})(CommentForm)
+```
+So I kept it the way I was doing it.
 
 It is all I have to say, happy reading.
