@@ -17,6 +17,14 @@ import xMark from '../icons/x-mark.svg'
 
 class Posts extends Component {
   componentDidMount() {
+    this.getPosts()
+  }
+  componentDidUpdate(prevProps) {
+    if (this.props.category !== prevProps.category) {
+      this.getPosts()
+    }
+  }
+  getPosts = () => {
     const {category, dispatch} = this.props
     const callback = (success, response) => {
       if (success) {
