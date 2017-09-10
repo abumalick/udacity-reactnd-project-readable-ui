@@ -185,8 +185,10 @@ export default connect(({categories, comments, posts}, ownProps) => {
       data: Object.values(posts.data)
         // remove deleted keep only selected category (if selected)
         .filter(
-          ({category, deleted}) =>
-            !deleted && (!ownProps.category || category === ownProps.category),
+          ({category, deleted, id}) =>
+            !deleted &&
+            id &&
+            (!ownProps.category || category === ownProps.category),
         )
         // add commentsCount to the array
         .map(post => ({
