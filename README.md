@@ -44,7 +44,7 @@ npm run start
 
 ![homepage screenshot](screenshot-homepage.png?raw=true "Home page")
 
-![post view screenshot](screenshot-homepage.png?raw=true "Post view")
+![post view screenshot](screenshot-post.png?raw=true "Post view")
 
 ![edit post view screenshot](screenshot-edit.png?raw=true "Edit Post view")
 
