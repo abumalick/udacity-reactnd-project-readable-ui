@@ -1,6 +1,7 @@
 /* eslint react/jsx-filename-extension: 0 */
 import React from 'react'
 import ReactDOM from 'react-dom'
+import 'antd/dist/antd.css'
 import 'tachyons'
 import './index.css'
 import Router from './Router'

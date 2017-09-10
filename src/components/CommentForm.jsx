@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
+import {Button, Input} from 'antd'
 
 import {editComment, newComment, toggleCommentForm} from '../actions/comments'
 import {changeField, destroyForm, initializeForm} from '../actions/form'
@@ -63,10 +64,11 @@ class CommentForm extends Component {
             <label className="w3 dib" htmlFor="author">
               Author:
             </label>
-            <input
-              className="w5 dib"
+            <Input
+              className="w5"
               onChange={this.handleChange}
               name="author"
+              placeholder="Your name"
               type="text"
               value={author}
             />
@@ -75,24 +77,26 @@ class CommentForm extends Component {
             <label className="w3 dib" htmlFor="body">
               Body:
             </label>
-            <textarea
+            <Input.TextArea
               className="w5"
               onChange={this.handleChange}
               name="body"
+              placeholder="Your comment"
               rows="6"
               value={body}
             />
           </div>
           <div className="tc">
-            <button className="mh1" onClick={this.submit}>
+            <Button className="mh1" onClick={this.submit} type="primary">
               Submit
-            </button>
-            <button
+            </Button>
+            <Button
               className="mh1"
               onClick={() => dispatch(toggleCommentForm())}
+              type="danger"
             >
               Cancel
-            </button>
+            </Button>
           </div>
           {error && <p className="mt2 red">{error}</p>}
         </div>
@@ -106,6 +110,7 @@ CommentForm.propTypes = {
   body: PropTypes.string, // eslint-disable-line
   comment: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
+  error: PropTypes.string, // eslint-disable-line
   postId: PropTypes.string.isRequired,
 }
 

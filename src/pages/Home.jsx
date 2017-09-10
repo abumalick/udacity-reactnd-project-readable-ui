@@ -6,13 +6,11 @@ import Posts from '../components/Posts'
 const Home = props => {
   const {match: {params: {category}}} = props
   return (
-    <div className="Home">
-      <div className="pa3">
-        <h1 className="ma0 f3">
-          {category ? `Posts for category ${category}` : 'All the posts'}
-        </h1>
-      </div>
-      {<Posts category={category || ''} />}
+    <div className="pa3 shadow-1 bg-near-white">
+      <h1 className="pl3 pb3 ma0 f3">
+        {category ? `Posts for category ${category}` : 'All the posts'}
+      </h1>
+      <Posts category={category || ''} />
     </div>
   )
 }

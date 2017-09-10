@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
+import {Button, Input, Select} from 'antd'
 
 import {editPost, getPost, newPost} from '../actions/posts'
 import {getCategories} from '../actions/categories'
@@ -10,7 +11,6 @@ import {
   saveError,
   initializeForm,
 } from '../actions/form'
-
 import generateUUID from '../helpers/generateUUID'
 
 class PostForm extends Component {
@@ -38,9 +38,15 @@ class PostForm extends Component {
     dispatch(destroyForm())
   }
   handleChange = event => {
-    const {name, value} = event.target
     const {dispatch} = this.props
-    dispatch(changeField({key: name, value}))
+    if (event.target) {
+      const {name, value} = event.target
+      dispatch(changeField({key: name, value}))
+    } else {
+      // It is the select
+      console.log(event)
+      dispatch(changeField({key: 'category', value: event}))
+    }
   }
   initForm = post => {
     const {dispatch} = this.props
@@ -103,84 +109,88 @@ class PostForm extends Component {
     } = this.props
     const {router: {history}} = this.context
     return (
-      <div className="fixed top-0 bottom-0 left-0 right-0 bg-black-70 z-999">
-        <div className="pa3 w6 mw-100 absolute center-absolute bg-white tc">
-          <h1 className="mt0 f3 tc">
-            {post.id ? 'Edit a post' : 'Write a new post'}
-          </h1>
-          <div className="mb2 flex justify-center items-baseline">
-            <label className="w3 dib" htmlFor="author">
-              Author:
-            </label>
-            <input
-              className="w5 dib"
-              onChange={this.handleChange}
-              name="author"
-              type="text"
-              value={author}
-            />
-          </div>
-          <div className="mb2 flex justify-center items-baseline">
-            <label className="w3 dib" htmlFor="title">
-              Title:
-            </label>
-            <input
-              className="w5 dib"
-              onChange={this.handleChange}
-              name="title"
-              type="text"
-              value={title}
-            />
-          </div>
-          <div className="mb2 flex justify-center">
-            <label className="w3 dib" htmlFor="body">
-              Body:
-            </label>
-            <textarea
-              className="w5"
-              onChange={this.handleChange}
-              name="body"
-              rows="6"
-              value={body}
-            />
-          </div>
-          <div className="mb2 flex justify-center">
-            <label className="w3 dib" htmlFor="category">
-              Category:
-            </label>
-            <select
-              className="w5 dib"
-              defaultValue=""
-              onChange={this.handleChange}
-              name="category"
-              type="text"
-              value={category}
-            >
-              <option value="" disabled>
-                Choose a category
-              </option>
-              {categories.data.map(({name, path}) => (
-                <option key={path} value={path}>
-                  {name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div className="tc">
-            <button className="mh1" onClick={this.submit}>
-              Submit
-            </button>
-            <button
-              className="mh1"
-              onClick={() => {
-                history.goBack()
-              }}
-            >
-              Back
-            </button>
-          </div>
-          {error && <p className="mt2 red">{error}</p>}
+      <div className="pa3 w6 bg-white tc">
+        <h1 className="mt0 f3 tc">
+          {post.id ? 'Edit a post' : 'Write a new post'}
+        </h1>
+        <div className="mb2 flex justify-center items-baseline">
+          <label className="w3 dib" htmlFor="author">
+            Author:
+          </label>
+          <Input
+            className="w5"
+            onChange={this.handleChange}
+            name="author"
+            placeholder="Your name"
+            type="text"
+            value={author}
+          />
         </div>
+        <div className="mb2 flex justify-center items-baseline">
+          <label className="w3 dib" htmlFor="title">
+            Title:
+          </label>
+          <Input
+            className="w5"
+            onChange={this.handleChange}
+            name="title"
+            placeholder="Title of the post"
+            type="text"
+            value={title}
+          />
+        </div>
+        <div className="mb2 flex justify-center">
+          <label className="w3 dib" htmlFor="body">
+            Body:
+          </label>
+          <Input.TextArea
+            className="w5"
+            onChange={this.handleChange}
+            name="body"
+            placeholder="What you want to say"
+            rows="6"
+            value={body}
+          />
+        </div>
+        <div className="mb2 flex justify-center">
+          <label className="pt1 w3 dib" htmlFor="category">
+            Category:
+          </label>
+          <Select
+            className="w5"
+            filterOption={(input, option) =>
+              option.props.children
+                .toLowerCase()
+                .indexOf(input.toLowerCase()) >= 0}
+            onChange={this.handleChange}
+            optionFilterProp="children"
+            placeholder="Choose a category"
+            name="category"
+            showSearch
+            value={category}
+          >
+            {categories.data.map(({name, path}) => (
+              <Select.Option key={path} value={path}>
+                {name}
+              </Select.Option>
+            ))}
+          </Select>
+        </div>
+        <div className="tc">
+          <Button className="mh1" type="primary" onClick={this.submit}>
+            Submit
+          </Button>
+          <Button
+            className="mh1"
+            onClick={() => {
+              history.goBack()
+            }}
+            type="danger"
+          >
+            Back
+          </Button>
+        </div>
+        {error && <p className="mt2 red">{error}</p>}
       </div>
     )
   }

@@ -4,6 +4,11 @@
   transform: translate(-50%, -50%);
 }
 
+.ant-table-thead > tr > th,
+.ant-table .ant-table-tbody {
+  text-align: center;
+}
+
 .w6 {
   width: 32rem;
 }

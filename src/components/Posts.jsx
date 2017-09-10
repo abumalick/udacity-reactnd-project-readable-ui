@@ -2,6 +2,7 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
+import {Button, Table} from 'antd'
 import VoteScore from './VoteScore'
 import {
   deletePost,
@@ -9,16 +10,11 @@ import {
   getPostsFromCategory,
   votePost,
 } from '../actions/posts'
-import {initializeOrder, orderBy, switchOrder} from '../actions/order'
 import {getComments} from '../actions/comments'
 import edit from '../icons/edit.svg'
 import xMark from '../icons/x-mark.svg'
 
 class Posts extends Component {
-  componentWillMount() {
-    const {dispatch} = this.props
-    dispatch(initializeOrder({id: 'posts'}))
-  }
   componentDidMount() {
     const {category, dispatch} = this.props
     const callback = (success, response) => {
@@ -39,130 +35,94 @@ class Posts extends Component {
     this.props.dispatch(deletePost(id))
   }
   render() {
-    const {dispatch, order, posts} = this.props
+    const {dispatch, posts} = this.props
+    const columns = [
+      {
+        title: 'Score',
+        dataIndex: 'voteScoreDisplay',
+        sorter: (a, b) => a.voteScore - b.voteScore,
+      },
+      {
+        title: 'Title',
+        dataIndex: 'titleDisplay',
+        sorter: (a, b) => (a.title > b.title ? 1 : -1),
+      },
+      {
+        title: 'Author',
+        dataIndex: 'author',
+        sorter: (a, b) => (a.author > b.author ? 1 : -1),
+      },
+      {
+        title: 'Date',
+        dataIndex: 'date',
+        sorter: (a, b) => a.timestamp - b.timestamp,
+      },
+      {
+        title: 'Comments',
+        dataIndex: 'commentsCount',
+        sorter: (a, b) => a.commentsCount - b.commentsCount,
+      },
+      {
+        dataIndex: 'actions',
+      },
+    ]
+    const data = posts.data.map(
+      ({id, author, category, commentsCount, title, timestamp, voteScore}) => ({
+        key: id,
+        voteScore,
+        voteScoreDisplay: (
+          <VoteScore
+            className="ph3"
+            onIncrement={() => {
+              dispatch(votePost({id, option: 'upVote'}))
+            }}
+            onDecrement={() => {
+              dispatch(votePost({id, option: 'downVote'}))
+            }}
+            voteScore={voteScore}
+          />
+        ),
+        title,
+        titleDisplay: (
+          <div className="tl">
+            <Link to={`/${category}/${id}`}>{title}</Link>
+          </div>
+        ),
+        author,
+        timestamp,
+        date: new Date(timestamp).toDateString(),
+        commentsCount,
+        actions: (
+          <div>
+            <Link className="ml2" to={`/edit/${id}`}>
+              <img alt="edit" className="h1" src={edit} />
+            </Link>
+            <a
+              className="ml2 pointer"
+              onClick={() => {
+                this.delete(id)
+              }}
+              role="button"
+              tabIndex="0"
+            >
+              <img alt="delete" className="h1" src={xMark} />
+            </a>
+          </div>
+        ),
+      }),
+    )
     return (
       <div>
         {posts.status === 'fetched' &&
           (posts.data.length ? (
-            <div>
-              <div className="f7 flex items-center pa2 bg-light-gray">
-                <span className="f6">order by:</span>
-                {Object.entries({
-                  voteScore: 'Score',
-                  title: 'title',
-                  author: 'author',
-                  timestamp: 'date',
-                  commentsCount: 'comments count',
-                }).map(([field, label]) => (
-                  <button
-                    key={field}
-                    className={`flex ml1 pointer ${order.by === field
-                      ? 'b--orange'
-                      : ''}`}
-                    onClick={() => {
-                      if (order.by === field) {
-                        dispatch(switchOrder({id: 'posts', field}))
-                      } else {
-                        dispatch(orderBy({id: 'posts', field}))
-                      }
-                    }}
-                  >
-                    {label}
-                    <div className="rotate-90">
-                      {order.by === field && (order.asc ? '<' : '>')}
-                    </div>
-                  </button>
-                ))}
-              </div>
-              <table>
-                <thead>
-                  <tr>
-                    {Object.entries({
-                      voteScore: '',
-                      title: 'Title',
-                      author: 'Author',
-                      timestamp: 'Date',
-                      commentsCount: 'Comments',
-                    }).map(([field, label]) => (
-                      <th
-                        key={field}
-                        className="pointer f6"
-                        onClick={() => {
-                          if (order.by === field) {
-                            dispatch(switchOrder({id: 'posts', field}))
-                          } else {
-                            dispatch(orderBy({id: 'posts', field}))
-                          }
-                        }}
-                      >
-                        {label}
-                        {order.by === field && (
-                          <div className="dib ml2 rotate-90 gray">
-                            {order.asc ? '<' : '>'}
-                          </div>
-                        )}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {posts.data.map(
-                    ({
-                      id,
-                      author,
-                      category,
-                      commentsCount,
-                      title,
-                      timestamp,
-                      voteScore,
-                    }) => (
-                      <tr key={id}>
-                        <td>
-                          <VoteScore
-                            className="ph3"
-                            onIncrement={() => {
-                              dispatch(votePost({id, option: 'upVote'}))
-                            }}
-                            onDecrement={() => {
-                              dispatch(votePost({id, option: 'downVote'}))
-                            }}
-                            voteScore={voteScore}
-                          />
-                        </td>
-                        <td>
-                          <Link to={`/${category}/${id}`}>{title}</Link>
-                        </td>
-                        <td>{author}</td>
-                        <td>{new Date(timestamp).toDateString()}</td>
-                        <td className="tc">{commentsCount}</td>
-                        <td>
-                          <Link className="ml2" to={`/edit/${id}`}>
-                            <img alt="edit" className="h1" src={edit} />
-                          </Link>
-                          <a
-                            className="ml2 pointer"
-                            onClick={() => {
-                              this.delete(id)
-                            }}
-                            role="button"
-                            tabIndex="0"
-                          >
-                            <img alt="delete" className="h1" src={xMark} />
-                          </a>
-                        </td>
-                      </tr>
-                    ),
-                  )}
-                </tbody>
-              </table>
-            </div>
+            <Table columns={columns} dataSource={data} pagination={false} />
           ) : (
             <p>There is currently no posts in this category.</p>
           ))}
 
-        <div className="bg-light-gray tc">
+        <div className="mt3 tc">
           <Link className="blue pointer no-underline" to="/new">
-            add a new post
+            <Button type="primary">add a new post</Button>
           </Link>
         </div>
       </div>
@@ -173,38 +133,28 @@ class Posts extends Component {
 Posts.propTypes = {
   category: PropTypes.string.isRequired,
   dispatch: PropTypes.func.isRequired,
-  order: PropTypes.object.isRequired,
   posts: PropTypes.object.isRequired,
 }
 
-export default connect(({comments, order, posts}, ownProps) => {
-  const orderPosts = order.posts || {}
-  return {
-    comments,
-    order: orderPosts,
-    posts: {
-      data: Object.values(posts.data)
-        // remove deleted keep only selected category (if selected)
-        .filter(
-          ({category, deleted}) =>
-            !deleted && (!ownProps.category || category === ownProps.category),
-        )
-        // add commentsCount to the array
-        .map(post => ({
-          ...post,
-          commentsCount:
-            comments[post.id] &&
-            comments[post.id].data &&
-            comments[post.id].data.length,
-        }))
-        // order
-        .sort(
-          (post1, post2) =>
-            orderPosts.asc
-              ? post1[orderPosts.by] > post2[orderPosts.by]
-              : post2[orderPosts.by] > post1[orderPosts.by],
-        ),
-      status: posts.status,
-    },
-  }
-})(Posts)
+export default connect(({comments, posts}, ownProps) => ({
+  comments,
+  posts: {
+    data: Object.values(posts.data)
+      // remove deleted keep only selected category (if selected)
+      .filter(
+        ({category, deleted}) =>
+          !deleted && (!ownProps.category || category === ownProps.category),
+      )
+      // add commentsCount to the array
+      .map(post => ({
+        ...post,
+        commentsCount:
+          comments[post.id] &&
+          comments[post.id].data &&
+          comments[post.id].data.length,
+      }))
+      // order
+      .sort((post1, post2) => post2.voteScore > post1.voteScore),
+    status: posts.status,
+  },
+}))(Posts)

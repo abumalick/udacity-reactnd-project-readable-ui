@@ -1,6 +1,7 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
+import {Button, Table} from 'antd'
 import VoteScore from './VoteScore'
 import {
   deleteComment,
@@ -8,7 +9,6 @@ import {
   toggleCommentForm,
   voteComment,
 } from '../actions/comments'
-import {initializeOrder, orderBy, switchOrder} from '../actions/order'
 
 import CommentForm from './CommentForm'
 
@@ -16,10 +16,6 @@ import edit from '../icons/edit.svg'
 import xMark from '../icons/x-mark.svg'
 
 class Comments extends Component {
-  componentWillMount() {
-    const {dispatch} = this.props
-    dispatch(initializeOrder({id: 'comments'}))
-  }
   componentDidMount() {
     const {dispatch, postId} = this.props
     dispatch(getComments(postId))
@@ -29,124 +25,141 @@ class Comments extends Component {
   }
   render() {
     const {
+      className,
       comments,
       dispatch,
       formVisible,
-      order,
       postId,
       selectedComment,
     } = this.props
+    const columns = [
+      {
+        title: 'Score',
+        dataIndex: 'voteScoreDisplay',
+        sorter: (a, b) => a.voteScore - b.voteScore,
+      },
+      {
+        title: 'Body',
+        dataIndex: 'bodyDisplay',
+        sorter: (a, b) => (a.body > b.body ? 1 : -1),
+      },
+      {
+        title: 'Author',
+        dataIndex: 'authorDisplay',
+        sorter: (a, b) => (a.author > b.author ? 1 : -1),
+      },
+      {
+        title: 'Date',
+        dataIndex: 'timestampDisplay',
+        sorter: (a, b) => a.timestamp - b.timestamp,
+      },
+      {
+        dataIndex: 'actions',
+      },
+    ]
+    const data = comments.data.map(
+      ({author, body, id, parentId, timestamp, voteScore}) => ({
+        key: id,
+        voteScore,
+        voteScoreDisplay: (
+          <VoteScore
+            className="ph3"
+            onIncrement={() => {
+              dispatch(
+                voteComment({
+                  id,
+                  option: 'upVote',
+                  parentId: postId,
+                }),
+              )
+            }}
+            onDecrement={() => {
+              dispatch(
+                voteComment({
+                  id,
+                  option: 'downVote',
+                  parentId: postId,
+                }),
+              )
+            }}
+            voteScore={voteScore}
+          />
+        ),
+        body,
+        bodyDisplay: <div className="tl near-black">{body}</div>,
+        author,
+        authorDisplay: <span className="orange">{author}</span>,
+        timestamp,
+        timestampDisplay: (
+          <span className="silver">{new Date(timestamp).toDateString()}</span>
+        ),
+        actions: (
+          <div>
+            <a
+              className="ml2 pointer"
+              onClick={() => {
+                dispatch(toggleCommentForm({id}))
+              }}
+              role="button"
+              tabIndex="0"
+            >
+              <img alt="edit" className="h1" src={edit} />
+            </a>
+            <a
+              className="ml2 pointer"
+              onClick={() => {
+                this.delete(id, parentId)
+              }}
+              role="button"
+              tabIndex="0"
+            >
+              <img alt="delete" className="h1" src={xMark} />
+            </a>
+          </div>
+        ),
+      }),
+    )
     return (
-      <div>
+      <div className={`bg-near-white shadow-1 ${className}`}>
         {comments.status === 'fetched' &&
           (comments.data.length ? (
-            <div>
-              <div className="ph2 flex justify-between items-baseline bg-light-gray">
-                <h3 className="mv2 mr2">{`${comments.data
-                  .length} Comment${comments.data.length > 1 ? 's' : ''}`}</h3>
-                <div className="flex">
-                  order by:
-                  {Object.entries({
-                    body: 'content',
-                    timestamp: 'date',
-                    voteScore: 'score',
-                  }).map(([field, label]) => (
-                    <button
-                      key={field}
-                      className={`flex ml1 pointer ${order.by === field
-                        ? 'b--orange'
-                        : ''}`}
-                      onClick={() => {
-                        if (order.by === field) {
-                          dispatch(switchOrder({id: 'comments', field}))
-                        } else {
-                          dispatch(orderBy({id: 'comments', field}))
-                        }
-                      }}
-                    >
-                      {label}
-                      <div className="rotate-90">
-                        {order.by === field && (order.asc ? '<' : '>')}
-                      </div>
-                    </button>
-                  ))}
-                </div>
+            <div className="pa2">
+              <div className="ph2 flex justify-between items-center">
+                <h2 className="mv2 mr2">{`This post have ${comments.data
+                  .length} comment${comments.data.length > 1 ? 's' : ''}`}</h2>
+                <Button
+                  className="pointer"
+                  type="primary"
+                  onClick={() => {
+                    dispatch(toggleCommentForm())
+                  }}
+                >
+                  add a comment
+                </Button>
               </div>
-              <table>
-                <tbody>
-                  {comments.data.map(comment => (
-                    <tr key={comment.id}>
-                      <td className="ph3 bg-light-gray gray">
-                        <VoteScore
-                          className="ph3"
-                          onIncrement={() => {
-                            dispatch(
-                              voteComment({
-                                id: comment.id,
-                                option: 'upVote',
-                                parentId: postId,
-                              }),
-                            )
-                          }}
-                          onDecrement={() => {
-                            dispatch(
-                              voteComment({
-                                id: comment.id,
-                                option: 'downVote',
-                                parentId: postId,
-                              }),
-                            )
-                          }}
-                          voteScore={comment.voteScore}
-                        />
-                      </td>
-                      <td>
-                        <span className="near-black">
-                          {comment.body} -
-                        </span>{' '}
-                        <span className="orange">{comment.author}</span>{' '}
-                        <span className="silver">
-                          {new Date(comment.timestamp).toDateString()}
-                        </span>
-                        <a
-                          className="ml2 pointer"
-                          onClick={() => {
-                            dispatch(toggleCommentForm({id: comment.id}))
-                          }}
-                          role="button"
-                          tabIndex="0"
-                        >
-                          <img alt="edit" className="h1" src={edit} />
-                        </a>
-                        <a
-                          className="ml2 pointer"
-                          onClick={() => {
-                            this.delete(comment.id, comment.parentId)
-                          }}
-                          role="button"
-                          tabIndex="0"
-                        >
-                          <img alt="delete" className="h1" src={xMark} />
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+              <Table
+                columns={columns}
+                dataSource={data}
+                pagination={false}
+                size="small"
+              />
             </div>
           ) : (
-            <p>There is currently not comments in this category.</p>
+            <div className="ph2 flex justify-between items-center">
+              <h4 className="mv2 mr2">
+                There is currently not comments in this category.
+              </h4>
+              <Button
+                className="pointer"
+                type="primary"
+                onClick={() => {
+                  dispatch(toggleCommentForm())
+                }}
+              >
+                add a comment
+              </Button>
+            </div>
           ))}
-        <div className="pv1 bg-light-gray tc">
-          <button
-            className="pointer"
-            onClick={() => {
-              dispatch(toggleCommentForm())
-            }}
-          >
-            add a comment
-          </button>
-        </div>
         {formVisible && (
           <CommentForm
             comment={
@@ -165,33 +178,26 @@ class Comments extends Component {
 }
 
 Comments.propTypes = {
+  className: PropTypes.string, // eslint-disable-line
   comments: PropTypes.object.isRequired,
   dispatch: PropTypes.func.isRequired,
   formVisible: PropTypes.bool.isRequired,
-  order: PropTypes.object.isRequired,
   postId: PropTypes.string.isRequired,
   selectedComment: PropTypes.string, // eslint-disable-line
 }
 
-export default connect(({comments, order}, {postId}) => {
-  const commentsOrder = order.comments || {}
+export default connect(({comments}, {postId}) => {
   const commentsData =
     comments[postId] &&
     comments[postId].data
       .filter(({parentDeleted}) => !parentDeleted)
-      .sort(
-        (comment1, comment2) =>
-          commentsOrder.asc
-            ? comment2[commentsOrder.by] < comment1[commentsOrder.by]
-            : comment2[commentsOrder.by] > comment1[commentsOrder.by],
-      )
+      .sort((comment1, comment2) => comment2.voteScore - comment1.voteScore)
   return {
     comments: {
       data: commentsData || [],
       status: (comments[postId] && comments[postId].status) || 'not fetched',
     },
     formVisible: comments.formVisible,
-    order: commentsOrder,
     selectedComment: comments.selectedComment,
   }
 })(Comments)

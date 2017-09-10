@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 
 const VoteScore = ({className, onIncrement, onDecrement, voteScore}) => (
   <div
-    className={`flex flex-column justify-center items-center ${className} bg-near-white tc`}
+    className={`flex flex-column justify-center items-center ${className} bg-near-white tc br-pill`}
   >
     <a
       className="pointer rotate-90"
