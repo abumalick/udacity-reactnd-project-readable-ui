@@ -37,22 +37,22 @@ class Comments extends Component {
       {
         title: 'Score',
         dataIndex: 'voteScoreDisplay',
-        sorter: (a, b) => a.voteScore - b.voteScore,
+        sorter: (a, b) => b.voteScore - a.voteScore,
       },
       {
         title: 'Body',
         dataIndex: 'bodyDisplay',
-        sorter: (a, b) => (a.body > b.body ? 1 : -1),
+        sorter: (a, b) => (b.body > a.body ? 1 : -1),
       },
       {
         title: 'Author',
         dataIndex: 'authorDisplay',
-        sorter: (a, b) => (a.author > b.author ? 1 : -1),
+        sorter: (a, b) => (b.author > a.author ? 1 : -1),
       },
       {
         title: 'Date',
         dataIndex: 'timestampDisplay',
-        sorter: (a, b) => a.timestamp - b.timestamp,
+        sorter: (a, b) => b.timestamp - a.timestamp,
       },
       {
         dataIndex: 'actions',

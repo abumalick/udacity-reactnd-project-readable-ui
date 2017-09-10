@@ -41,27 +41,27 @@ class Posts extends Component {
       {
         title: 'Score',
         dataIndex: 'voteScoreDisplay',
-        sorter: (a, b) => a.voteScore - b.voteScore,
+        sorter: (a, b) => b.voteScore - a.voteScore,
       },
       {
         title: 'Title',
         dataIndex: 'titleDisplay',
-        sorter: (a, b) => (a.title > b.title ? 1 : -1),
+        sorter: (a, b) => (b.title > a.title ? 1 : -1),
       },
       {
         title: 'Author',
         dataIndex: 'author',
-        sorter: (a, b) => (a.author > b.author ? 1 : -1),
+        sorter: (a, b) => (b.author > a.author ? 1 : -1),
       },
       {
         title: 'Date',
         dataIndex: 'date',
-        sorter: (a, b) => a.timestamp - b.timestamp,
+        sorter: (a, b) => b.timestamp - a.timestamp,
       },
       {
         title: 'Comments',
         dataIndex: 'commentsCount',
-        sorter: (a, b) => a.commentsCount - b.commentsCount,
+        sorter: (a, b) => b.commentsCount - a.commentsCount,
       },
       {
         dataIndex: 'actions',
