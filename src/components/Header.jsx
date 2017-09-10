@@ -1,7 +1,6 @@
 import React from 'react'
 import {Link} from 'react-router-dom'
-// import {Layout, Menu, Breadcrumb} from 'antd'
-import {Layout} from 'antd'
+import Layout from 'antd/lib/layout'
 import Menu from './Menu'
 import speech from '../icons/speech.svg'
 

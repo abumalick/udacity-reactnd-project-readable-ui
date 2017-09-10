@@ -1,6 +1,7 @@
 /* eslint react/jsx-filename-extension: 0 */
 import React from 'react'
 import ReactDOM from 'react-dom'
+// TODO: only import style of used modules
 import 'antd/dist/antd.css'
 import 'tachyons'
 import './index.css'

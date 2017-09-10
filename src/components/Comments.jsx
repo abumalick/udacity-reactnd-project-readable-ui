@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import {connect} from 'react-redux'
 import PropTypes from 'prop-types'
-import {Button, Table} from 'antd'
+import Button from 'antd/lib/button'
+import Table from 'antd/lib/table'
 import VoteScore from './VoteScore'
 import {
   deleteComment,

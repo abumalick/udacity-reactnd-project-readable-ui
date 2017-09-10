@@ -2,9 +2,9 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
+import Button from 'antd/lib/button'
 import Comments from './Comments'
 import VoteScore from './VoteScore'
-import {Button} from 'antd'
 
 import {deletePost, getPost, votePost} from '../actions/posts'
 

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link, withRouter} from 'react-router-dom'
 
-import {Breadcrumb} from 'antd'
+import Breadcrumb from 'antd/lib/breadcrumb'
 
 const MyBreadcrumb = ({matches, matchNames}) => {
   let constructPath = ''

@@ -1,7 +1,9 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {Button, Input, Select} from 'antd'
+import Button from 'antd/lib/button'
+import Input from 'antd/lib/input'
+import Select from 'antd/lib/select'
 
 import {editPost, getPost, newPost} from '../actions/posts'
 import {getCategories} from '../actions/categories'

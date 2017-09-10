@@ -1,6 +1,6 @@
 import React from 'react'
 import {BrowserRouter, Route, Switch} from 'react-router-dom'
-import {Layout} from 'antd'
+import Layout from 'antd/lib/layout'
 
 import Home from './pages/Home'
 import SinglePost from './pages/SinglePost'

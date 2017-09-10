@@ -1,7 +1,8 @@
 import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
-import {Button, Input} from 'antd'
+import Button from 'antd/lib/button'
+import Input from 'antd/lib/input'
 
 import {editComment, newComment, toggleCommentForm} from '../actions/comments'
 import {changeField, destroyForm, initializeForm} from '../actions/form'

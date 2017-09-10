@@ -2,7 +2,8 @@ import React, {Component} from 'react'
 import PropTypes from 'prop-types'
 import {connect} from 'react-redux'
 import {Link} from 'react-router-dom'
-import {Button, Table} from 'antd'
+import Button from 'antd/lib/button'
+import Table from 'antd/lib/table'
 import VoteScore from './VoteScore'
 import {
   deletePost,
