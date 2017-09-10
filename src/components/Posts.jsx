@@ -30,8 +30,10 @@ class Posts extends Component {
     const callback = (success, response) => {
       if (success) {
         // We need the comments count for all posts, so let's fetch:
-        response.data.forEach(({id}) => {
-          dispatch(getComments(id))
+        response.data.forEach(({id, deleted}) => {
+          if (id && !deleted) {
+            dispatch(getComments(id))
+          }
         })
       }
     }
