@@ -30,7 +30,7 @@ npm run start
 -   React
 -   Redux
 -   React router
-    [Ant Design for React](https://ant.design): an UI library
+-   [Ant Design for React](https://ant.design): an UI library
 -   [Tachyons](http://tachyons.io/): Create fast loading, highly readable, and 100% responsive interfaces with as little css as possible. 
 -   [axios](https://github.com/mzabriskie/axios) (Promise based HTTP client for the browser and node.js)
 
