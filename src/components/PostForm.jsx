@@ -6,7 +6,6 @@ import Input from 'antd/lib/input'
 import Select from 'antd/lib/select'
 
 import {editPost, getPost, newPost} from '../actions/posts'
-import {getCategories} from '../actions/categories'
 import {
   changeField,
   destroyForm,
@@ -23,7 +22,6 @@ class PostForm extends Component {
   componentDidMount() {
     const {dispatch, postId} = this.props
     if (postId) dispatch(getPost(postId))
-    dispatch(getCategories())
   }
   componentWillReceiveProps(newProps) {
     if (newProps.post.id !== this.props.post.id) {
