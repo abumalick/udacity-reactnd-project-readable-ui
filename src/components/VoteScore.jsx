@@ -9,6 +9,7 @@ const VoteScore = ({className, onIncrement, onDecrement, voteScore}) => (
       className="pointer rotate-90"
       onClick={onIncrement}
       role="button"
+      style={{textDecoration: 'none'}}
       tabIndex="0"
     >
       {'<'}
@@ -18,6 +19,7 @@ const VoteScore = ({className, onIncrement, onDecrement, voteScore}) => (
       className="pointer rotate-90"
       onClick={onDecrement}
       role="button"
+      style={{textDecoration: 'none'}}
       tabIndex="0"
     >
       {'>'}
