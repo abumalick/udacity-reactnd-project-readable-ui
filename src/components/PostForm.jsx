@@ -16,11 +16,6 @@ import {
 import generateUUID from '../helpers/generateUUID'
 
 class PostForm extends Component {
-  constructor(props, context) {
-    super(props, context)
-    this.initForm(props.post)
-  }
-
   componentWillMount() {
     const {post} = this.props
     this.initForm(post)
@@ -45,8 +40,7 @@ class PostForm extends Component {
       const {name, value} = event.target
       dispatch(changeField({key: name, value}))
     } else {
-      // It is the select
-      console.log(event)
+      // It is the Select (Category)
       dispatch(changeField({key: 'category', value: event}))
     }
   }
