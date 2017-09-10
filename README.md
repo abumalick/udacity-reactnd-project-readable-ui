@@ -40,6 +40,14 @@ npm run start
 -   eslint
 -   flow (Well, it is my first time with flow and I used it only a little bit, maybe when I have more time I will use it more)
 
+### Screenshots:
+
+![homepage screenshot](screenshot-homepage.png?raw=true "Home page")
+
+![post view screenshot](screenshot-homepage.png?raw=true "Post view")
+
+![edit post view screenshot](screenshot-edit.png?raw=true "Edit Post view")
+
 ### Note to reviewer
 
 I tried to use mapDispatchToProps as you recommended, then saw that it was adding a lot of noise in my files like:
